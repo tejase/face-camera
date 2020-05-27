@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Slider } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Slider, PermissionsAndroid } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import { RNCamera } from 'react-native-camera';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -52,7 +52,39 @@ export default class CameraScreen extends React.Component {
   }
 
   
-  
+  async checkAndroidPermission() {
+    console.log('ddfdfdf')
+  try {
+      const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'My App Storage Permission',
+            message: 'My App needs access to your storage ' +
+              'so you can save your photos',
+          },
+        );
+        return granted;
+  } catch (error) {
+    Promise.reject(error);
+  }
+};
+
+checkAndroidPermission = async () => {
+  try {
+    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+    await PermissionsAndroid.request(permission);
+    Promise.resolve();
+  } catch (error) {
+    Promise.reject(error);
+  }
+};
+
+savePicture = async (data) => {
+  if (Platform.OS === 'android'){
+    await this.checkAndroidPermission();
+  }
+  //CameraRoll.saveToCameraRoll(data);
+};
   
   takePicture = async () => {
     // let data = await this.requestExternalStoragePermission();
@@ -76,6 +108,11 @@ export default class CameraScreen extends React.Component {
       const data = await this.camera.takePictureAsync(options);
      
       console.log(data.uri);
+
+      if (Platform.OS === 'android'){
+        const bata = await this.savePicture(data.uri);
+        console.log('returntype', bata);
+      }
 
       
       
